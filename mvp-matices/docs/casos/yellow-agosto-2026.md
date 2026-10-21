@@ -27,3 +27,12 @@ Total: 16 unidades en 6 referencias, $138.000 a costo (8.625 por unidad). Las ot
 ## Uso en las pruebas
 
 `tests/engine/yellow-line.test.ts` reproduce las seis referencias con sus ventas y stock, y comprueba 16 unidades y $138.000. Si el motor cambia y este resultado cambia, hay que justificarlo en este documento.
+
+## Resultado en el MVP con solo agosto (21 de octubre de 2026)
+
+Cargando el mismo archivo pasado a la plantilla Matices, con el periodo 1 a 31 de agosto, stock hoy al 15 de octubre y las reglas por defecto (v1):
+
+- Rotación de la línea: **0,059**, igual al análisis manual.
+- Pedir ya: 4 referencias (2975, 3022, 3024, 3018), 14 unidades, $120.750 a costo. Vigilar: 3 (3012, 3032, 2999).
+
+La diferencia con el resultado esperado (6 referencias, 16 unidades, $138.000) se explica por la ventana: el caso de referencia usa ventas del 1 de agosto al 10 de octubre (71 días); con solo agosto no entran las ventas de septiembre y octubre de 3009 y 3017. El motor no cambió y la prueba de referencia sigue pasando. El archivo real convertido vive solo en `data/private/` y no se sube al repositorio.
