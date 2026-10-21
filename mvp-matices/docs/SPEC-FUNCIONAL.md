@@ -41,7 +41,7 @@ Periodo (`InventoryPeriod`): `periodStart`, `periodEnd`, `asOf` en formato `YYYY
 
 ### 2.1 Archivo de carga (fase 1b): plantilla Matices
 
-Solo se acepta la **plantilla Matices** (`data/sample/plantilla-matices.xlsx` o `.csv`), hasta 10 archivos de 5 MB. De un `.xlsx` se lee la primera hoja; un `.csv` va en UTF-8 con separador `,` o `;` (se detecta solo). Un archivo de Numbers se exporta antes a `.xlsx`.
+Solo se acepta la **plantilla Matices** (`data/sample/plantilla-matices.xlsx` o `.csv`), hasta 10 archivos y 4 MB en total por carga (el máximo de una solicitud en Vercel es 4,5 MB). De un `.xlsx` se lee la primera hoja; un `.csv` va en UTF-8 con separador `,` o `;` (se detecta solo). Un archivo de Numbers se exporta antes a `.xlsx`.
 
 La fila de encabezados se busca en las primeras 15 filas. Los nombres deben ser los de la plantilla; no importan mayúsculas, tildes, espacios ni guiones bajos (`Periodo Inicio` = `periodo_inicio`). No se aceptan sinónimos.
 

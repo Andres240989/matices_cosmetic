@@ -1,9 +1,12 @@
 import type { AnalysisRequest, AnalysisResult } from "@/contracts/analysis";
 import type { IngestionResult } from "@/contracts/ingestion";
 
+/** Errors from the platform (for example 413 from Vercel) may come without a JSON body. */
 async function readJson<T>(response: Response): Promise<T> {
-  const body = await response.json();
-  if (!response.ok) throw new Error(body.message ?? "Error inesperado del servidor.");
+  const body = await response.json().catch(() => null);
+  if (!response.ok || body === null) {
+    throw new Error(body?.message ?? `El servidor respondió con un error (${response.status}).`);
+  }
   return body as T;
 }
 

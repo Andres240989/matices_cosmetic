@@ -1,7 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import { INGESTION_LIMITS, type IngestionResult } from "@/contracts/ingestion";
+import {
+  INGESTION_LIMITS,
+  findUploadLimitError,
+  type IngestionResult,
+} from "@/contracts/ingestion";
 import { uploadInventoryFiles } from "@/lib/api-client";
 import { formatPeriod } from "@/lib/format";
 import { Section } from "./section";
@@ -14,6 +18,11 @@ export function UploadSection({ result, onLoaded }: Props) {
   const [error, setError] = useState<string | null>(null);
 
   async function load() {
+    const limitError = findUploadLimitError(files);
+    if (limitError) {
+      setError(limitError);
+      return;
+    }
     setIsLoading(true);
     setError(null);
     try {
@@ -32,7 +41,7 @@ export function UploadSection({ result, onLoaded }: Props) {
     <Section step={1} title="Cargar datos">
       <p className="mb-3 text-sm text-ink-2">
         Usa la plantilla Matices (.xlsx o .csv). Puedes cargar varios archivos y varios periodos a
-        la vez; hasta {INGESTION_LIMITS.maxFiles} archivos de 5 MB.{" "}
+        la vez; hasta {INGESTION_LIMITS.maxFiles} archivos y 4 MB en total.{" "}
         <a className="text-accent underline" href="/plantilla-matices.xlsx" download>
           Descargar plantilla
         </a>
