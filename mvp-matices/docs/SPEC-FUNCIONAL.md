@@ -39,6 +39,43 @@ Por producto y periodo (contrato `ProductPeriod`):
 
 Periodo (`InventoryPeriod`): `periodStart`, `periodEnd`, `asOf` en formato `YYYY-MM-DD`. El número de días cuenta ambos extremos (1 ago a 10 oct = 71).
 
+### 2.1 Archivo de carga (fase 1b): plantilla Matices
+
+Solo se acepta la **plantilla Matices** (`data/sample/plantilla-matices.xlsx` o `.csv`), hasta 10 archivos de 5 MB. De un `.xlsx` se lee la primera hoja; un `.csv` va en UTF-8 con separador `,` o `;` (se detecta solo). Un archivo de Numbers se exporta antes a `.xlsx`.
+
+La fila de encabezados se busca en las primeras 15 filas. Los nombres deben ser los de la plantilla; no importan mayúsculas, tildes, espacios ni guiones bajos (`Periodo Inicio` = `periodo_inicio`). No se aceptan sinónimos.
+
+| Columna              | Obligatoria | Contenido                                              |
+| -------------------- | ----------- | ------------------------------------------------------ |
+| `periodo_inicio`     | Sí          | Fecha `AAAA-MM-DD` o `DD/MM/AAAA`                      |
+| `periodo_fin`        | Sí          | Fecha `AAAA-MM-DD` o `DD/MM/AAAA`                      |
+| `codigo`             | Sí          | Código del producto                                    |
+| `producto`           | Sí          | Nombre                                                 |
+| `inventario_inicial` | Sí          | Unidades enteras al inicio del periodo                 |
+| `inventario_final`   | Sí          | Unidades enteras al final del periodo                  |
+| `unidades_vendidas`  | Sí          | Unidades vendidas entre inicio y fin del mismo periodo |
+| `stock_hoy`          | No (\*)     | Unidades el día del análisis                           |
+| `en_transito`        | No (0)      | Unidades pedidas y no recibidas                        |
+| `costo_unitario`     | Sí          | Pesos (se guarda en centavos, ×100)                    |
+| `precio_venta`       | No (vacío)  | Pesos (se guarda en centavos, ×100)                    |
+
+(\*) Sin la columna `stock_hoy` se usa el inventario final y el reporte de carga lo avisa. Si la columna existe y la celda está vacía, la fila se rechaza.
+
+**Números:** solo cifras simples, como `8625`, `8625.5` o `8625,50` (máximo dos decimales). Un separador de miles (`9.200`) o un símbolo (`$`) rechazan la fila: nunca se adivina el valor.
+
+Una fila se **rechaza** (y se informa con archivo, número de fila y motivo) si le falta un campo obligatorio, si una cantidad no es entera, si un número o una fecha no son válidos, o si el mismo código ya apareció en el mismo periodo. Las demás filas se siguen leyendo. Las filas totalmente vacías se ignoran. Las cantidades negativas y el costo cero **no** se rechazan al leer: los marca la regla R1.
+
+### 2.2 Varios periodos
+
+Un archivo puede traer varios periodos (filas con distinto `periodo_inicio`/`periodo_fin`) y se pueden cargar varios archivos a la vez. Cada periodo se puede analizar por separado. La **base de demanda** es el periodo con el que se calculan rotación y compra sugerida:
+
+- **Un periodo**: sus propios datos.
+- **Consolidado**: disponible si hay dos o más periodos **consecutivos** (cada uno empieza el día siguiente al fin del anterior). Para cada producto presente en todos los periodos: inventario inicial = el del primer periodo; inventario final = el del último; vendido = suma de lo vendido en todos; stock hoy, en tránsito, costo y precio = los del último. Así la rotación usa el inventario promedio y las ventas acumuladas de la misma ventana. Un producto que falta en algún periodo queda fuera del consolidado y se informa.
+
+Por defecto se usa el consolidado cuando existe; si no, el periodo más reciente. La fecha de análisis (`asOf`) no puede ser anterior al fin del periodo más reciente.
+
+**Rotación de la línea por periodo** = `Σ (vendido × costo) / Σ (inventario promedio × costo)`, a costo, para comparar periodos aunque los productos tengan costos distintos.
+
 ## 3. Reglas configurables (`RulesConfig`)
 
 | Parámetro          | Por defecto | Qué controla                                           |
@@ -81,6 +118,8 @@ Sin ninguna regla que objete: **Stock suficiente**.
 Los productos con compra sugerida pero en `Vigilar` muestran la cifra como referencia; solo cuentan en el total de pedido los de `Pedir ya`.
 
 ## 6. Pantallas (MVP)
+
+El MVP de la fase 1b (`mvp-matices`) entrega las pantallas 1 a 4 sin base de datos: las reglas se versionan en la sesión del navegador y la recomendación se puede exportar a CSV. Las pantallas 5 y 6 llegan con `store/`.
 
 1. **Cargar datos**: archivo del periodo y fecha de análisis. Muestra qué filas se rechazaron y por qué.
 2. **Reglas**: formulario con los cuatro parámetros y su efecto. Guardar crea una versión nueva.
