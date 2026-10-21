@@ -1,12 +1,14 @@
 /**
  * Writes the synthetic sample files in data/sample/. Products and numbers are invented;
- * they never come from a customer. Deterministic: running it twice gives the same files.
+ * they never come from a customer. Deterministic data; .xlsx bytes differ between runs only by zip timestamps.
  */
 import { mkdirSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import writeExcelFile from "write-excel-file/node";
 
 const OUT_DIR = join(import.meta.dirname, "..", "data", "sample");
+/** The web app links to this copy of the template. */
+const PUBLIC_DIR = join(import.meta.dirname, "..", "public");
 
 type SampleProduct = {
   productId: string;
@@ -449,12 +451,15 @@ async function writeTemplate() {
     16900,
   ];
   writeCsv("plantilla-matices.csv", [TEMPLATE_HEADER, example], ",");
-  await writeExcelFile([TEMPLATE_HEADER, example], { sheet: "Inventario" }).toFile(
-    join(OUT_DIR, "plantilla-matices.xlsx"),
-  );
+  for (const dir of [OUT_DIR, PUBLIC_DIR]) {
+    await writeExcelFile([TEMPLATE_HEADER, example], { sheet: "Inventario" }).toFile(
+      join(dir, "plantilla-matices.xlsx"),
+    );
+  }
 }
 
 mkdirSync(OUT_DIR, { recursive: true });
+mkdirSync(PUBLIC_DIR, { recursive: true });
 await writeMultiPeriod();
 writeSingleMonthCsv();
 writeWithErrors();
