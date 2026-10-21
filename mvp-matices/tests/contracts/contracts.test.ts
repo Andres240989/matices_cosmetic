@@ -72,3 +72,9 @@ describe("PurchaseApprovalSchema", () => {
     ).toBe(false);
   });
 });
+
+describe("IsoDateSchema with text that is not a date", () => {
+  it("rejects it instead of throwing", () => {
+    expect(IsoDateSchema.safeParse("agosto").success).toBe(false);
+  });
+});
