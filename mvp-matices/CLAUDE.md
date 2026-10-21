@@ -10,6 +10,8 @@ Read before writing code: `docs/PRD.md` (what and why), `docs/SPEC-FUNCIONAL.md`
 
 ```bash
 npm install
+npm run dev          # Next.js on http://localhost:3000
+npm run samples      # Regenerate the synthetic files in data/sample/
 npm test             # Vitest (tests/**/*.test.ts)
 npm run typecheck    # tsc --noEmit
 npm run lint         # ESLint, including the dependency rule between modules
@@ -18,7 +20,7 @@ npm run format       # Prettier
 
 ## Stack
 
-TypeScript strict · Node 22+ · Zod 4 · Vitest · ESLint · Prettier · npm only. Next.js, libSQL and the Alegra client are added in their phase, not before ("no new dependency without a concrete need today").
+TypeScript strict · Node 22+ · Zod 4 · Vitest · ESLint · Prettier · npm only. Phase 1b adds Next.js 16 (App Router) + React 19 + Tailwind 4 for the web app and `read-excel-file` to read `.xlsx` on the server. libSQL and the Alegra client are added in their phase, not before ("no new dependency without a concrete need today").
 
 ## Non-negotiable invariants
 
@@ -47,6 +49,7 @@ ESLint (`no-restricted-imports`) enforces this table. Full version in `docs/ARQU
 | `src/ingestion/` | `contracts/`                  | `engine/`, `store/`                             |
 | `src/store/`     | `contracts/`, database client | `engine/`, `ingestion/`                         |
 | `src/pipeline/`  | all of the above              | frontend                                        |
+| `src/app/api/`   | `pipeline/`, `contracts/`     | `engine/`, `ingestion/`, frontend               |
 | Frontend         | `contracts/`, own modules     | all backend modules; talks via `lib/api-client` |
 
 - Cross-module imports use the `@/` alias. Relative imports only inside the same module.
@@ -83,6 +86,10 @@ ESLint (`no-restricted-imports`) enforces this table. Full version in `docs/ARQU
 | Final recommendation                     | `outcome`: `ORDER_NOW` / `WATCH` / `SUFFICIENT`               | `BUY`, `OK`, `LOW`           | Pedir ya / Vigilar / Stock suficiente |
 | Human decision                           | `PurchaseApproval`, `action`: `APPROVE` / `ADJUST` / `REJECT` | `confirm`, `accept`          | Aprobar / Ajustar / Rechazar          |
 | Audit log entry                          | `AuditEntry`                                                  | `log`, `event`               | Registro                              |
+| One period as read from files            | `LoadedPeriod`                                                | `batch`, `upload`            | Periodo cargado                       |
+| Period the engine evaluates              | `DemandBasis`; all consecutive periods: `CONSOLIDATED`        | `window`, `range`, `merged`  | Base de demanda / Consolidado         |
+| A problem found while reading a file     | `IngestionIssue`, `severity`: `REJECTED` / `NOTICE`           | `error`, `warning`           | Fila rechazada / Aviso                |
+| Rotation of all products, at cost        | `computePortfolioRotation`, `PeriodRotation`                  | `lineTurnover`               | Rotación de la línea                  |
 
 A new concept is added to this table **in the same change** that introduces it.
 

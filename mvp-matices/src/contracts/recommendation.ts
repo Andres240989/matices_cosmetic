@@ -29,6 +29,8 @@ export type RuleResult = z.infer<typeof RuleResultSchema>;
 
 export const RecommendationMetricsSchema = z.object({
   periodDays: z.number().int().positive(),
+  /** (opening + closing) / 2, the denominator of `rotation`. */
+  averageStockUnits: z.number(),
   dailyDemand: z.number().nonnegative(),
   rotation: z.number().nonnegative().nullable(),
   daysOfInventory: z.number().nonnegative().nullable(),

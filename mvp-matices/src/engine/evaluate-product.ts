@@ -53,6 +53,7 @@ export function evaluateProduct(input: EvaluateProductInput): Recommendation {
   const suggestedPurchaseUnits = isDataTrusted ? plan.suggestedUnits : 0;
   const suggestedPurchaseMinor = suggestedPurchaseUnits * product.unitCostMinor;
 
+  const averageStockUnits = (product.openingStockUnits + product.closingStockUnits) / 2;
   const rotation = computeRotation({
     openingStockUnits: product.openingStockUnits,
     closingStockUnits: product.closingStockUnits,
@@ -63,7 +64,7 @@ export function evaluateProduct(input: EvaluateProductInput): Recommendation {
     unitCostMinor: product.unitCostMinor,
     unitPriceMinor: product.unitPriceMinor,
     soldUnits: product.soldUnits,
-    averageStockUnits: (product.openingStockUnits + product.closingStockUnits) / 2,
+    averageStockUnits,
     periodDays,
   });
   const stagnation = ruleResults[3];
@@ -76,6 +77,7 @@ export function evaluateProduct(input: EvaluateProductInput): Recommendation {
     ruleResults,
     metrics: {
       periodDays,
+      averageStockUnits,
       dailyDemand: plan.dailyDemand,
       rotation: rotation.rotation,
       daysOfInventory: rotation.daysOfInventory,
