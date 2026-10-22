@@ -1,5 +1,5 @@
 import type { AnalysisResult } from "@/contracts/analysis";
-import { OUTCOME_LABELS } from "./format";
+import { OUTCOME_LABELS, displayProductCode } from "./format";
 
 const HEADER = [
   "estado",
@@ -31,7 +31,7 @@ export function buildRecommendationsCsv(result: AnalysisResult): string {
     const p = products.get(r.productId);
     return [
       OUTCOME_LABELS[r.outcome],
-      r.productId,
+      p ? displayProductCode(p) : r.productId,
       r.name,
       p?.openingStockUnits ?? null,
       p?.closingStockUnits ?? null,

@@ -62,7 +62,7 @@ function groupPeriods(rows: FileRow[]) {
         issue(
           item.fileName,
           item.row.rowNumber,
-          `Fila rechazada: el código ${product.productId} ya está en el periodo ${periodStart} a ${periodEnd} (${first.fileName}, fila ${first.row.rowNumber}).`,
+          `Fila rechazada: ${product.isProductIdFromName ? "el producto" : "el código"} ${product.productId} ya está en el periodo ${periodStart} a ${periodEnd} (${first.fileName}, fila ${first.row.rowNumber}).`,
         ),
       );
       continue;

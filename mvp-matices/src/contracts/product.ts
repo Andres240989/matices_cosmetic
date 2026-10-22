@@ -7,8 +7,11 @@ import { MinorUnitsSchema } from "./money";
  * accounting systems do produce them, and rule R1 turns them into a WATCH instead of a crash.
  */
 export const ProductPeriodSchema = z.object({
+  /** The accounting system's code; without one, the product name identifies the product. */
   productId: z.string().min(1),
   name: z.string().min(1),
+  /** `true` when the file had no code and `productId` is the name. A code is never invented. */
+  isProductIdFromName: z.boolean().default(false),
   openingStockUnits: z.number().int(),
   closingStockUnits: z.number().int(),
   soldUnits: z.number().int(),

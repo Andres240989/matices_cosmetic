@@ -4,7 +4,7 @@ import { Fragment, useState } from "react";
 import type { AnalysisResult } from "@/contracts/analysis";
 import type { RecommendationOutcome } from "@/contracts/recommendation";
 import { buildRecommendationsCsv } from "@/lib/export-csv";
-import { OUTCOME_LABELS, formatDecimal, formatPesos } from "@/lib/format";
+import { OUTCOME_LABELS, displayProductCode, formatDecimal, formatPesos } from "@/lib/format";
 import { OutcomeBadge } from "./outcome-badge";
 
 type Filter = RecommendationOutcome | "ALL";
@@ -103,7 +103,9 @@ export function RecommendationsTable({ result }: { result: AnalysisResult }) {
                       <span className="block max-w-72 truncate" title={r.name}>
                         {r.name}
                       </span>
-                      <span className="text-xs text-muted">{r.productId}</span>
+                      <span className="text-xs text-muted">
+                        {p ? displayProductCode(p) || "Sin código" : r.productId}
+                      </span>
                     </td>
                     <td className={NUMBER_CELL}>{p?.openingStockUnits}</td>
                     <td className={NUMBER_CELL}>{p?.closingStockUnits}</td>

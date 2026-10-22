@@ -28,6 +28,11 @@ export const OUTCOME_LABELS: Record<RecommendationOutcome, string> = {
   SUFFICIENT: "Stock suficiente",
 };
 
+/** Products without a code in the file show an empty code: Matices never invents one. */
+export function displayProductCode(product: { productId: string; isProductIdFromName: boolean }) {
+  return product.isProductIdFromName ? "" : product.productId;
+}
+
 export function formatPeriod(periodStart: string, periodEnd: string): string {
   return `${periodStart} a ${periodEnd}`;
 }
