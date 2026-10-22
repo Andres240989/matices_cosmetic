@@ -28,11 +28,18 @@ Total: 16 unidades en 6 referencias, $138.000 a costo (8.625 por unidad). Las ot
 
 `tests/engine/yellow-line.test.ts` reproduce las seis referencias con sus ventas y stock, y comprueba 16 unidades y $138.000. Si el motor cambia y este resultado cambia, hay que justificarlo en este documento.
 
-## Resultado en el MVP con solo agosto (21 de octubre de 2026)
+## Datos reales de agosto en el MVP (21 de octubre de 2026)
 
-Cargando el mismo archivo pasado a la plantilla Matices, con el periodo 1 a 31 de agosto, stock hoy al 15 de octubre y las reglas por defecto (v1):
+El cliente confirmó que el dato real de agosto son tres archivos separados: inventario inicial (`INV 1 AGO`), inventario final (`INV 31 AGO`) y ventas, con el costo unitario actualizado. Reemplazan, para las demos, a la hoja `ROTACION_INVENTARIO_2026-08.xlsx` (que traía 8 unidades vendidas en agosto).
 
-- Rotación de la línea: **0,059**, igual al análisis manual.
-- Pedir ya: 4 referencias (2975, 3022, 3024, 3018), 14 unidades, $120.750 a costo. Vigilar: 3 (3012, 3032, 2999).
+- 68 referencias, 56 unidades vendidas en 23 referencias. Los archivos no traen código de producto: se unen por nombre y el código queda vacío (no se inventa).
+- En 18 referencias `inicial − ventas ≠ final`, siempre con el final mayor: probablemente hubo compras en el mes que los archivos no informan. La rotación usa los datos tal cual.
+- Sin stock hoy, en tránsito ni precio: se usa el inventario final como stock hoy.
 
-La diferencia con el resultado esperado (6 referencias, 16 unidades, $138.000) se explica por la ventana: el caso de referencia usa ventas del 1 de agosto al 10 de octubre (71 días); con solo agosto no entran las ventas de septiembre y octubre de 3009 y 3017. El motor no cambió y la prueba de referencia sigue pasando. El archivo real convertido vive solo en `data/private/` y no se sube al repositorio.
+Resultado con el periodo 1 a 31 de agosto de 2026, fecha de análisis 31 de agosto y reglas por defecto (v1):
+
+- Rotación de la línea: **0,308**.
+- Pedir ya: 11 referencias, 53 unidades, **$502.393** a costo. Vigilar: 6. Stock suficiente: 51.
+- Capital parado: $1.019.892 de $1.665.957 a costo (61 %).
+
+Este resultado no se compara con el esperado de arriba (6 referencias, 16 unidades, $138.000): ese es el análisis manual de la ventana de 71 días con la hoja anterior, y sigue siendo la prueba de referencia del motor, que no cambió. Los archivos reales y su conversión a la plantilla viven solo en `data/private/` y no se suben al repositorio.
