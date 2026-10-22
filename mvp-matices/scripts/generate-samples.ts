@@ -374,7 +374,7 @@ function writeWithErrors() {
     .slice(0, 8)
     .map((row) => templateRow(month, row, productById(row.productId)));
   const bad: (string | number)[][] = [
-    [month.periodStart, month.periodEnd, "", "PRODUCTO SIN CODIGO", 5, 3, 2, 3, 0, 9200, 16900],
+    [month.periodStart, month.periodEnd, "9000", "", 5, 3, 2, 3, 0, 9200, 16900],
     [
       month.periodStart,
       month.periodEnd,
@@ -436,6 +436,59 @@ function writeWithErrors() {
   );
 }
 
+/** What the person reads in the template's second sheet. The reader only uses the first sheet. */
+const INSTRUCTIONS: string[][] = [
+  ["Plantilla Matices: cómo llenarla"],
+  [""],
+  [
+    "1. Llena la hoja Inventario: una fila por producto y por periodo. No cambies los nombres de las columnas.",
+  ],
+  [
+    "2. Para varios periodos (por ejemplo julio, agosto y septiembre) agrega más filas con sus fechas, en la misma hoja.",
+  ],
+  [
+    "3. Guarda como .xlsx (recomendado) o .csv y cárgalo en Matices. Deja la hoja Inventario como primera hoja.",
+  ],
+  [""],
+  ["Columna", "Obligatoria", "Qué poner", "Ejemplo"],
+  ["periodo_inicio", "Sí", "Primer día del periodo, AAAA-MM-DD o DD/MM/AAAA", "2026-08-01"],
+  ["periodo_fin", "Sí", "Último día del periodo", "2026-08-31"],
+  [
+    "codigo",
+    "No",
+    "Código del producto en tu sistema. Si no lo tienes, déjalo vacío: el producto se identifica por su nombre",
+    "1001",
+  ],
+  [
+    "producto",
+    "Sí",
+    "Nombre del producto, escrito igual en todos los periodos",
+    "TINTE CREMA AURA 1 NEGRO 60 ML",
+  ],
+  ["inventario_inicial", "Sí", "Unidades al inicio del periodo (número entero)", "5"],
+  ["inventario_final", "Sí", "Unidades al final del periodo (número entero)", "7"],
+  ["unidades_vendidas", "Sí", "Unidades vendidas entre periodo_inicio y periodo_fin", "4"],
+  [
+    "stock_hoy",
+    "No",
+    "Unidades el día del análisis. Si no tienes la columna, bórrala: se usa el inventario final",
+    "0",
+  ],
+  ["en_transito", "No", "Unidades pedidas que aún no llegan. Vacío = 0", "0"],
+  ["costo_unitario", "Sí", "Costo por unidad en pesos, sin puntos de miles ni $", "9200"],
+  ["precio_venta", "No", "Precio de venta por unidad en pesos", "16900"],
+  [""],
+  ["Si tus datos vienen en archivos separados (inventario inicial, inventario final y ventas):"],
+  ["a. Copia la lista de productos en la columna producto."],
+  ["b. Trae cada cantidad buscando por nombre, por ejemplo en inventario_final:"],
+  [
+    "   =BUSCARX(D2;'[INV FINAL AGO.xlsx]Hoja1'!$A:$A;'[INV FINAL AGO.xlsx]Hoja1'!$B:$B;\"NO ESTÁ\")",
+  ],
+  ["c. Revisa que ningún producto diga NO ESTÁ y pega las columnas como valores antes de guardar."],
+  [""],
+  ["Matices recomienda; no compra. Cada compra la decide y aprueba una persona."],
+];
+
 async function writeTemplate() {
   const example = [
     "2026-08-01",
@@ -452,9 +505,14 @@ async function writeTemplate() {
   ];
   writeCsv("plantilla-matices.csv", [TEMPLATE_HEADER, example], ",");
   for (const dir of [OUT_DIR, PUBLIC_DIR]) {
-    await writeExcelFile([TEMPLATE_HEADER, example], { sheet: "Inventario" }).toFile(
-      join(dir, "plantilla-matices.xlsx"),
-    );
+    await writeExcelFile([
+      { sheet: "Inventario", data: [TEMPLATE_HEADER, example] },
+      {
+        sheet: "Instrucciones",
+        data: INSTRUCTIONS,
+        columns: [{ width: 22 }, { width: 12 }, { width: 90 }, { width: 34 }],
+      },
+    ]).toFile(join(dir, "plantilla-matices.xlsx"));
   }
 }
 
