@@ -19,5 +19,5 @@ export const DEFAULT_RULES_CONFIG: RulesConfig = {
   leadTimeDays: 10,
   reviewPeriodDays: 30,
   serviceLevel: 0.9,
-  minHistoryDays: 30,
+  minHistoryDays: 28,
 };
