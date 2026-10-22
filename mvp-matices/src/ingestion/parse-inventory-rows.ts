@@ -44,9 +44,12 @@ export function parseInventoryRow(row: Cell[], rowNumber: number, columns: Colum
   const periodStart = read("periodStart", parseIsoDate);
   const periodEnd = read("periodEnd", parseIsoDate);
   const closingStockUnits = read("closingStockUnits", parseUnits);
+  const name = read("name", requiredText);
+  const code = isPresent("productId") ? cellText(row[columns.productId as number]) : "";
   const candidate = {
-    productId: read("productId", requiredText),
-    name: read("name", requiredText),
+    productId: code === "" ? name : code,
+    name,
+    isProductIdFromName: code === "",
     openingStockUnits: read("openingStockUnits", parseUnits),
     closingStockUnits,
     soldUnits: read("soldUnits", parseUnits),

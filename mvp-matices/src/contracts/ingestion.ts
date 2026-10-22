@@ -2,7 +2,21 @@ import { z } from "zod";
 import { IsoDateSchema } from "./dates";
 import { ProductPeriodSchema } from "./product";
 
-export const INGESTION_LIMITS = { maxFiles: 10, maxFileBytes: 5 * 1024 * 1024 } as const;
+/** 4 MB in total stays under the 4.5 MB request body limit of Vercel functions. */
+export const INGESTION_LIMITS = { maxFiles: 10, maxTotalBytes: 4 * 1024 * 1024 } as const;
+
+/** Spanish message when an upload breaks the limits, `null` when it is fine. Shared by server and screen. */
+export function findUploadLimitError(files: { name: string; size: number }[]): string | null {
+  if (files.length === 0) return "Selecciona al menos un archivo.";
+  if (files.length > INGESTION_LIMITS.maxFiles) {
+    return `Máximo ${INGESTION_LIMITS.maxFiles} archivos por carga.`;
+  }
+  const totalBytes = files.reduce((sum, f) => sum + f.size, 0);
+  if (totalBytes > INGESTION_LIMITS.maxTotalBytes) {
+    return "Los archivos suman más de 4 MB: cárgalos en varias tandas.";
+  }
+  return null;
+}
 
 /** One period as read from the files, before an analysis date is chosen. */
 export const LoadedPeriodSchema = z

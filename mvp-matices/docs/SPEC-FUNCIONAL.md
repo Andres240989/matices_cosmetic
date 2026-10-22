@@ -41,7 +41,7 @@ Periodo (`InventoryPeriod`): `periodStart`, `periodEnd`, `asOf` en formato `YYYY
 
 ### 2.1 Archivo de carga (fase 1b): plantilla Matices
 
-Solo se acepta la **plantilla Matices** (`data/sample/plantilla-matices.xlsx` o `.csv`), hasta 10 archivos de 5 MB. De un `.xlsx` se lee la primera hoja; un `.csv` va en UTF-8 con separador `,` o `;` (se detecta solo). Un archivo de Numbers se exporta antes a `.xlsx`.
+Solo se acepta la **plantilla Matices** (`data/sample/plantilla-matices.xlsx` o `.csv`; el `.xlsx` trae una hoja **Instrucciones** después de la hoja de datos), hasta 10 archivos y 4 MB en total por carga (el máximo de una solicitud en Vercel es 4,5 MB). De un `.xlsx` se lee la primera hoja; un `.csv` va en UTF-8 con separador `,` o `;` (se detecta solo). Un archivo de Numbers se exporta antes a `.xlsx`.
 
 La fila de encabezados se busca en las primeras 15 filas. Los nombres deben ser los de la plantilla; no importan mayúsculas, tildes, espacios ni guiones bajos (`Periodo Inicio` = `periodo_inicio`). No se aceptan sinónimos.
 
@@ -49,7 +49,7 @@ La fila de encabezados se busca en las primeras 15 filas. Los nombres deben ser 
 | -------------------- | ----------- | ------------------------------------------------------ |
 | `periodo_inicio`     | Sí          | Fecha `AAAA-MM-DD` o `DD/MM/AAAA`                      |
 | `periodo_fin`        | Sí          | Fecha `AAAA-MM-DD` o `DD/MM/AAAA`                      |
-| `codigo`             | Sí          | Código del producto                                    |
+| `codigo`             | No (\*\*)   | Código del producto en el sistema contable             |
 | `producto`           | Sí          | Nombre                                                 |
 | `inventario_inicial` | Sí          | Unidades enteras al inicio del periodo                 |
 | `inventario_final`   | Sí          | Unidades enteras al final del periodo                  |
@@ -61,9 +61,11 @@ La fila de encabezados se busca en las primeras 15 filas. Los nombres deben ser 
 
 (\*) Sin la columna `stock_hoy` se usa el inventario final y el reporte de carga lo avisa. Si la columna existe y la celda está vacía, la fila se rechaza.
 
+(\*\*) Sin código (columna ausente o celda vacía), el producto se identifica por su nombre tal como está escrito (sin espacios al inicio ni al final). Nunca se inventa un código: en pantalla y en el CSV exportado el código queda vacío. Así se comparan también los periodos al consolidar, de modo que el nombre debe escribirse igual en todos.
+
 **Números:** solo cifras simples, como `8625`, `8625.5` o `8625,50` (máximo dos decimales). Un separador de miles (`9.200`) o un símbolo (`$`) rechazan la fila: nunca se adivina el valor.
 
-Una fila se **rechaza** (y se informa con archivo, número de fila y motivo) si le falta un campo obligatorio, si una cantidad no es entera, si un número o una fecha no son válidos, o si el mismo código ya apareció en el mismo periodo. Las demás filas se siguen leyendo. Las filas totalmente vacías se ignoran. Las cantidades negativas y el costo cero **no** se rechazan al leer: los marca la regla R1.
+Una fila se **rechaza** (y se informa con archivo, número de fila y motivo) si le falta un campo obligatorio, si una cantidad no es entera, si un número o una fecha no son válidos, o si el mismo producto (mismo código o, sin código, mismo nombre) ya apareció en el mismo periodo. Las demás filas se siguen leyendo. Las filas totalmente vacías se ignoran. Las cantidades negativas y el costo cero **no** se rechazan al leer: los marca la regla R1.
 
 ### 2.2 Varios periodos
 

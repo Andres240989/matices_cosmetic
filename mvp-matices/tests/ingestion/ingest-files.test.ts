@@ -62,7 +62,7 @@ describe("ingestInventoryFiles", () => {
       ["REJECTED", 13],
     ]);
     const messages = result.issues.map((i) => i.message);
-    expect(messages[0]).toContain("codigo está vacío");
+    expect(messages[0]).toContain("producto está vacío");
     expect(messages[1]).toContain('"cinco" no es un número');
     expect(messages[2]).toContain("no es un número entero");
     expect(messages[3]).toContain("costo_unitario está vacío");
@@ -86,6 +86,29 @@ describe("ingestInventoryFiles", () => {
         message: expect.stringContaining("stock_hoy"),
       }),
     ]);
+  });
+
+  it("identifies products by name when there is no code, without inventing one", async () => {
+    const noCodeColumn =
+      "periodo_inicio,periodo_fin,producto,inventario_inicial,inventario_final,unidades_vendidas,costo_unitario\n2026-08-01,2026-08-31,  TINTE A  ,5,3,2,9483.56\n";
+    const emptyCode = `${HEADER}\n2026-08-01,2026-08-31,,TINTE B,5,3,2,3,100\n2026-08-01,2026-08-31,77,TINTE C,1,1,0,1,100\n`;
+    const result = await ingestInventoryFiles([
+      csv("sin-columna.csv", noCodeColumn),
+      csv("vacio.csv", emptyCode),
+    ]);
+    expect(result.issues.filter((i) => i.severity === "REJECTED")).toEqual([]);
+    expect(result.periods[0]?.products.map((p) => [p.productId, p.isProductIdFromName])).toEqual([
+      ["TINTE A", true],
+      ["TINTE B", true],
+      ["77", false],
+    ]);
+  });
+
+  it("rejects the same name twice in one period when there is no code", async () => {
+    const row = "2026-08-01,2026-08-31,,TINTE B,5,3,2,3,100";
+    const result = await ingestInventoryFiles([csv("a.csv", `${HEADER}\n${row}\n${row}\n`)]);
+    expect(result.rowsAccepted).toBe(1);
+    expect(result.issues[0]?.message).toContain("el producto TINTE B ya está");
   });
 
   it("rejects the same product twice in one period across files", async () => {

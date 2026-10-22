@@ -33,7 +33,6 @@ export const TEMPLATE_COLUMNS: Record<InventoryField, string> = {
 export const REQUIRED_FIELDS: InventoryField[] = [
   "periodStart",
   "periodEnd",
-  "productId",
   "name",
   "openingStockUnits",
   "closingStockUnits",
