@@ -44,6 +44,24 @@ describe("R1 data quality gate", () => {
     expect(result.explanation).toContain("10 días de historial");
   });
 
+  it("trusts a full February: 28 days meets the minimum", () => {
+    const result = evaluate(
+      { soldUnits: 6, currentStockUnits: 0 },
+      { periodStart: "2027-02-01", periodEnd: "2027-02-28", asOf: "2027-02-28" },
+    );
+    expect(result.outcome).toBe("ORDER_NOW");
+    expect(result.suggestedPurchaseUnits).toBeGreaterThan(0);
+  });
+
+  it("does not trust 27 days, one below the minimum", () => {
+    const result = evaluate(
+      { soldUnits: 6, currentStockUnits: 0 },
+      { periodStart: "2027-02-01", periodEnd: "2027-02-27", asOf: "2027-02-28" },
+    );
+    expect(result.outcome).toBe("WATCH");
+    expect(result.suggestedPurchaseUnits).toBe(0);
+  });
+
   it("turns negative stock into WATCH instead of failing", () => {
     const result = evaluate({ soldUnits: 6, currentStockUnits: -2 });
     expect(result.outcome).toBe("WATCH");

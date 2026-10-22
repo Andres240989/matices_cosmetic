@@ -85,7 +85,9 @@ Por defecto se usa el consolidado cuando existe; si no, el periodo más reciente
 | `leadTimeDays`     | 10          | Días entre el pedido y la llegada                      |
 | `reviewPeriodDays` | 30          | Días entre un pedido y el siguiente                    |
 | `serviceLevel`     | 0,90        | Probabilidad de no agotarse durante el horizonte       |
-| `minHistoryDays`   | 30          | Mínimo de días de historial para confiar en la demanda |
+| `minHistoryDays`   | 28          | Mínimo de días de historial para confiar en la demanda |
+
+`minHistoryDays` queda fijo en 28 y no se edita en pantalla: así cualquier mes completo, febrero incluido, alcanza. El **historial de ventas** es la duración de la base de demanda elegida: un mes da de 28 a 31 días; el consolidado de tres meses, unos 90. La pantalla lo muestra junto a la base de demanda y avisa cuando es menor que el mínimo.
 
 Cada cambio crea una versión nueva y queda en el registro. Cada recomendación guarda la versión que usó.
 
